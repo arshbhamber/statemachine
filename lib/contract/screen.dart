@@ -1,4 +1,5 @@
-sealed class Screen {
+abstract class Screen {
   String path;
-  Screen(this.path);
+  Map<String, dynamic>? params;
+  Screen(this.path, {this.params});
 }

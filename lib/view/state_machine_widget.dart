@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:statemachine/contract/async_side_effect.dart';
 
 import '../contract/async_side_effect_handler.dart';
 import '../contract/event.dart';
@@ -8,15 +9,18 @@ import '../contract/state.dart';
 import '../contract/ui_side_effect.dart';
 import '../core/state_machine.dart';
 
-abstract class StateMachineWidget<E extends Event, S extends BaseState,
+abstract class StateMachineWidget<
+    E extends Event,
+    S extends BaseState,
+    ASF extends AsyncSideEffect,
     USF extends UISideEffect> extends StatefulWidget {
   const StateMachineWidget({super.key});
 
   @override
-  State<StateMachineWidget<E, S, USF>> createState() =>
-      _StateMachineWidgetState<E, S, USF>();
+  State<StateMachineWidget<E, S, ASF, USF>> createState() =>
+      _StateMachineWidgetState<E, S, ASF, USF>();
 
-  StateMachine<E, S, USF> injectStateMachine();
+  StateMachine<E, S, ASF, USF> injectStateMachine();
 
   void handleUISideEffect(
       BuildContext context, USF sideEffect, DispatchEvent<E> dispatchEvent);
@@ -26,11 +30,16 @@ abstract class StateMachineWidget<E extends Event, S extends BaseState,
   Widget buildLayout(S state, DispatchEvent<E> dispatchEvent);
 
   void pushReplacement(BuildContext context, Screen screen) {
-    context.pushReplacement(screen.path);
+    context.pushReplacement(screen.path, extra: screen.params);
   }
 
   void push(BuildContext context, Screen screen, {Object? extra}) {
     context.push(screen.path, extra: extra);
+  }
+
+  Future<dynamic> pushForResult(BuildContext context, Screen screen,
+      {Object? extra}) {
+    return context.push(screen.path, extra: extra);
   }
 
   void pushNamed(BuildContext context, Screen screen) {
@@ -58,13 +67,14 @@ abstract class StateMachineWidget<E extends Event, S extends BaseState,
   }
 
   bool enableScaffold() {
-    return false;
+    return true;
   }
 }
 
 class _StateMachineWidgetState<E extends Event, S extends BaseState,
-    USF extends UISideEffect> extends State<StateMachineWidget<E, S, USF>> {
-  late StateMachine<E, S, USF> stateMachine;
+        ASF extends AsyncSideEffect, USF extends UISideEffect>
+    extends State<StateMachineWidget<E, S, ASF, USF>> {
+  late StateMachine<E, S, ASF, USF> stateMachine;
 
   late S state;
 
@@ -103,6 +113,7 @@ class _StateMachineWidgetState<E extends Event, S extends BaseState,
 
   Widget getScaffoldView() {
     return Scaffold(
+      // backgroundColor: Color(0xFFF0F1F5),
       appBar: widget.getAppBar(state, (event) {
         stateMachine.dispatchEvent(event);
       }),
@@ -115,13 +126,13 @@ class _StateMachineWidgetState<E extends Event, S extends BaseState,
       floatingActionButton: widget.getFloatingActionButton(state, (event) {
         stateMachine.dispatchEvent(event);
       }),
-      backgroundColor: const Color.fromARGB(255, 36, 3, 26),
+      // backgroundColor: const Color.fromARGB(255, 36, 3, 26),
     );
   }
 
   Widget getMaterialView() {
     return Material(
-      color: const Color.fromARGB(0, 36, 3, 26),
+      // color: const Color.fromARGB(0, 36, 3, 26),
       child: widget.buildLayout(state, (event) {
         stateMachine.dispatchEvent(event);
       }),

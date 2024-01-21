@@ -15,7 +15,7 @@ class StateMachineImpl<
     E extends Event,
     S extends BaseState,
     ASF extends AsyncSideEffect,
-    USF extends UISideEffect> extends StateMachine<E, S, USF> {
+    USF extends UISideEffect> extends StateMachine<E, S, ASF, USF> {
   StreamController<S> stateController = StreamController();
   StreamController<USF> uiSideEffect = StreamController();
   StreamController eventBus = StreamController();
