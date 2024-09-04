@@ -97,6 +97,7 @@ class StateMachineImpl<
     state.dispose();
     eventBus.close();
     stateController.close();
+    asyncSideEffectHandler.dispose();
     uiSideEffect.close();
   }
 }

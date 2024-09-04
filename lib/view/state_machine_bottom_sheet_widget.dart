@@ -25,7 +25,6 @@ abstract class StateMachineBottomSheetWidget<
   void init(DispatchEvent<E> dispatchEvent) {}
 
   Widget buildLayout(S state, DispatchEvent<E> dispatchEvent);
-
 }
 
 class _StateMachineWidgetState<E extends Event, S extends BaseState,
@@ -63,11 +62,10 @@ class _StateMachineWidgetState<E extends Event, S extends BaseState,
 
   Widget getMaterialView() {
     return Material(
-      child: SafeArea(
-        child: widget.buildLayout(state, (event) {
-          stateMachine.dispatchEvent(event);
-        }),
-      ),
+      color: Colors.transparent,
+      child: widget.buildLayout(state, (event) {
+        stateMachine.dispatchEvent(event);
+      }),
     );
   }
 
