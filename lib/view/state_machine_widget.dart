@@ -69,11 +69,19 @@ abstract class StateMachineWidget<
   bool enableScaffold() {
     return true;
   }
+
+  bool enableLifecycleEvents() {
+    return false;
+  }
+
+  void didChangeAppLifecycleState(
+      AppLifecycleState state, DispatchEvent<E> dispatchEvent) {}
 }
 
 class _StateMachineWidgetState<E extends Event, S extends BaseState,
         ASF extends AsyncSideEffect, USF extends UISideEffect>
-    extends State<StateMachineWidget<E, S, ASF, USF>> {
+    extends State<StateMachineWidget<E, S, ASF, USF>>
+    with WidgetsBindingObserver {
   late StateMachine<E, S, ASF, USF> stateMachine;
 
   late S state;
@@ -93,6 +101,11 @@ class _StateMachineWidgetState<E extends Event, S extends BaseState,
       widget.handleUISideEffect(
           context, usf, ((event) => stateMachine.dispatchEvent(event)));
     });
+
+    if (widget.enableLifecycleEvents()) {
+      WidgetsBinding.instance.addObserver(this);
+    }
+
     super.initState();
   }
 
@@ -140,8 +153,22 @@ class _StateMachineWidgetState<E extends Event, S extends BaseState,
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    widget.didChangeAppLifecycleState(
+      state,
+      (event) {
+        stateMachine.dispatchEvent(event);
+      },
+    );
+    super.didChangeAppLifecycleState(state);
+  }
+
+  @override
   void dispose() {
     stateMachine.dispose();
+    if (widget.enableLifecycleEvents()) {
+      WidgetsBinding.instance.removeObserver(this);
+    }
     super.dispose();
   }
 }
