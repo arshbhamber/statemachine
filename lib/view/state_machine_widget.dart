@@ -74,6 +74,10 @@ abstract class StateMachineWidget<
     return false;
   }
 
+  Color? getScaffoldBackgroundColor() {
+    return null;
+  }
+
   void didChangeAppLifecycleState(
       AppLifecycleState state, DispatchEvent<E> dispatchEvent) {}
 }
@@ -126,7 +130,7 @@ class _StateMachineWidgetState<E extends Event, S extends BaseState,
 
   Widget getScaffoldView() {
     return Scaffold(
-      // backgroundColor: Color(0xFFF0F1F5),
+      backgroundColor: widget.getScaffoldBackgroundColor(),
       appBar: widget.getAppBar(state, (event) {
         stateMachine.dispatchEvent(event);
       }),
@@ -139,7 +143,6 @@ class _StateMachineWidgetState<E extends Event, S extends BaseState,
       floatingActionButton: widget.getFloatingActionButton(state, (event) {
         stateMachine.dispatchEvent(event);
       }),
-      // backgroundColor: const Color.fromARGB(255, 36, 3, 26),
     );
   }
 
